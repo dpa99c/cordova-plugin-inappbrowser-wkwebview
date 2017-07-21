@@ -69,7 +69,7 @@
 
 @end
 
-@interface CDVInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate>{
+@interface CDVInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate>{
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
