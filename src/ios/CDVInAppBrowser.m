@@ -573,29 +573,27 @@
     
     WKUserContentController* userContentController = [[WKUserContentController alloc] init];
     
-    //TODO Script handler attaching
-    // scriptMessageHandler is the object that conforms to the WKScriptMessageHandler protocol
-    // see https://developer.apple.com/library/prerelease/ios/documentation/WebKit/Reference/WKScriptMessageHandler_Ref/index.html#//apple_ref/swift/intf/WKScriptMessageHandler
-    //if ([_webViewDelegate conformsToProtocol:@protocol(WKScriptMessageHandler)]) {
-    //    NSLog(@"Add handler");
-    //    [userContentController addScriptMessageHandler:self name:@"cordova"];
-    //}
-    
     WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
     configuration.userContentController = userContentController;
     configuration.processPool = [[CDVWKProcessPoolFactory sharedFactory] sharedProcessPool];
     
+    // scriptMessageHandler is the object that conforms to the WKScriptMessageHandler protocol
+    // see https://developer.apple.com/documentation/webkit/wkscriptmessagehandler
+    if ([_webViewDelegate conformsToProtocol:@protocol(WKScriptMessageHandler)]) {
+        NSLog(@"Add handler");
+        [configuration.userContentController addScriptMessageHandler:self name:@"cordova"];
+    }
+    
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
     CDVWKWebViewUIDelegate* webViewUIDelegate = [[CDVWKWebViewUIDelegate alloc] initWithTitle:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]];
     ((WKWebView*)self.webView).UIDelegate = webViewUIDelegate;
-    self.webView.navigationDelegate = self;
-    self.webView.UIDelegate = self;
-
+    
     [self.view addSubview:self.webView];
     [self.view sendSubviewToBack:self.webView];
     
     
-    //self.webView.delegate = _webViewDelegate;
+    self.webView.navigationDelegate = self;
+    self.webView.UIDelegate = self;
     self.webView.backgroundColor = [UIColor whiteColor];
     
     self.webView.clearsContextBeforeDrawing = YES;
@@ -603,7 +601,6 @@
     self.webView.contentMode = UIViewContentModeScaleToFill;
     self.webView.multipleTouchEnabled = YES;
     self.webView.opaque = YES;
-    //self.webView.scalesPageToFit = NO;
     self.webView.userInteractionEnabled = YES;
     
     
@@ -955,6 +952,7 @@
     self.addressLabel.text = [self.currentURL absoluteString];
     self.backButton.enabled = theWebView.canGoBack;
     self.forwardButton.enabled = theWebView.canGoForward;
+    theWebView.scrollView.contentInset = UIEdgeInsetsZero;
     
     [self.spinner stopAnimating];
     
