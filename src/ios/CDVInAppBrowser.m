@@ -615,6 +615,7 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     self.webView.opaque = YES;
     self.webView.userInteractionEnabled = YES;
     self.automaticallyAdjustsScrollViewInsets = NO ;
+    [self.webView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     
     
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
