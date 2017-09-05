@@ -69,7 +69,7 @@
 
 @end
 
-@interface CDVInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate>{
+@interface CDVInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler>{
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
@@ -85,6 +85,7 @@
 }
 
 @property (nonatomic, strong) IBOutlet WKWebView* webView;
+@property (nonatomic, strong) IBOutlet WKWebViewConfiguration* configuration;
 @property (nonatomic, strong) IBOutlet UIBarButtonItem* closeButton;
 @property (nonatomic, strong) IBOutlet UILabel* addressLabel;
 @property (nonatomic, strong) IBOutlet UIBarButtonItem* backButton;

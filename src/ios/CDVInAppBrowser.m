@@ -203,13 +203,22 @@
     
 
     [self.inAppBrowserViewController navigateTo:url];
-    if (!browserOptions.hidden) {
-        [self show:nil];
+    [self show:nil withNoAnimate:browserOptions.hidden];
+    if (browserOptions.hidden) {
+        self.inAppBrowserViewController.view.hidden = YES;
     }
 }
 
-- (void)show:(CDVInvokedUrlCommand*)command
+- (void)show:(CDVInvokedUrlCommand*)command{
+    [self show:nil withNoAnimate:NO];
+}
+- (void)show:(CDVInvokedUrlCommand*)command withNoAnimate:(BOOL)noAnimate
 {
+    BOOL wasHidden = self.inAppBrowserViewController.view.hidden;
+    if(wasHidden){
+        self.inAppBrowserViewController.view.hidden = NO;
+        noAnimate = YES;
+    }
     if (self.inAppBrowserViewController == nil) {
         NSLog(@"Tried to show IAB after it was closed.");
         return;
@@ -239,7 +248,7 @@
             [tmpWindow setWindowLevel:UIWindowLevelNormal];
             
             [tmpWindow makeKeyAndVisible];
-            [tmpController presentViewController:nav animated:YES completion:nil];
+            [tmpController presentViewController:nav animated:!noAnimate completion:nil];
         }
     });
 }
@@ -512,6 +521,15 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
         self.callbackId = nil;
     }
+    self.inAppBrowserViewController.popupBridge = nil;
+    [self.inAppBrowserViewController.configuration.userContentController removeScriptMessageHandlerForName:@"cordova"];
+    self.inAppBrowserViewController.configuration = nil;
+    [self.inAppBrowserViewController.webView stopLoading];
+    [self.inAppBrowserViewController.webView loadHTMLString:@"" baseURL:nil];
+    [self.inAppBrowserViewController.webView removeFromSuperview];
+    [self.inAppBrowserViewController.webView setUIDelegate:nil];
+    [self.inAppBrowserViewController.webView setNavigationDelegate:nil];
+    self.inAppBrowserViewController.webView = nil;
     // Set navigationDelegate to nil to ensure no callbacks are received from it.
     self.inAppBrowserViewController.navigationDelegate = nil;
     // Don't recycle the ViewController since it may be consuming a lot of memory.
@@ -559,7 +577,7 @@ BOOL viewRenderedAtLeastOnce = FALSE;
 
 // Prevent crashes on closing windows
 -(void)dealloc {
-    //self.webView.delegate = nil;
+    NSLog(@"dealloc");
 }
 
 - (void)createViews
@@ -574,18 +592,18 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     
     WKUserContentController* userContentController = [[WKUserContentController alloc] init];
     
-    WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
-    configuration.userContentController = userContentController;
-    configuration.processPool = [[CDVWKProcessPoolFactory sharedFactory] sharedProcessPool];
+    self.configuration = [[WKWebViewConfiguration alloc] init];
+    self.configuration.userContentController = userContentController;
+    self.configuration.processPool = [[CDVWKProcessPoolFactory sharedFactory] sharedProcessPool];
     
     // scriptMessageHandler is the object that conforms to the WKScriptMessageHandler protocol
     // see https://developer.apple.com/documentation/webkit/wkscriptmessagehandler
     if ([_webViewDelegate conformsToProtocol:@protocol(WKScriptMessageHandler)]) {
         NSLog(@"Add handler");
-        [configuration.userContentController addScriptMessageHandler:self name:@"cordova"];
+        [self.configuration.userContentController addScriptMessageHandler:self name:@"cordova"];
     }
     
-    self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
+    self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:self.configuration];
     CDVWKWebViewUIDelegate* webViewUIDelegate = [[CDVWKWebViewUIDelegate alloc] initWithTitle:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]];
     ((WKWebView*)self.webView).UIDelegate = webViewUIDelegate;
     
@@ -604,6 +622,7 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     self.webView.opaque = YES;
     self.webView.userInteractionEnabled = YES;
     self.automaticallyAdjustsScrollViewInsets = NO ;
+    [self.webView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     
     
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
@@ -832,6 +851,13 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     [super viewDidLoad];
 }
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
+        [self.navigationDelegate browserExit];
+    }
+}
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
     return UIStatusBarStyleDefault;
@@ -846,9 +872,6 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     self.currentURL = nil;
     
-    if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
-        [self.navigationDelegate browserExit];
-    }
     
     __weak UIViewController* weakSelf = self;
     
