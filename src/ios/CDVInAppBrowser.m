@@ -212,6 +212,7 @@
 - (void)show:(CDVInvokedUrlCommand*)command{
     [self show:nil withNoAnimate:NO];
 }
+
 - (void)show:(CDVInvokedUrlCommand*)command withNoAnimate:(BOOL)noAnimate
 {
     BOOL wasHidden = self.inAppBrowserViewController.view.hidden;
@@ -219,6 +220,7 @@
         self.inAppBrowserViewController.view.hidden = NO;
         noAnimate = YES;
     }
+    
     if (self.inAppBrowserViewController == nil) {
         NSLog(@"Tried to show IAB after it was closed.");
         return;
@@ -521,15 +523,6 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
         self.callbackId = nil;
     }
-    self.inAppBrowserViewController.popupBridge = nil;
-    [self.inAppBrowserViewController.configuration.userContentController removeScriptMessageHandlerForName:@"cordova"];
-    self.inAppBrowserViewController.configuration = nil;
-    [self.inAppBrowserViewController.webView stopLoading];
-    [self.inAppBrowserViewController.webView loadHTMLString:@"" baseURL:nil];
-    [self.inAppBrowserViewController.webView removeFromSuperview];
-    [self.inAppBrowserViewController.webView setUIDelegate:nil];
-    [self.inAppBrowserViewController.webView setNavigationDelegate:nil];
-    self.inAppBrowserViewController.webView = nil;
     // Set navigationDelegate to nil to ensure no callbacks are received from it.
     self.inAppBrowserViewController.navigationDelegate = nil;
     // Don't recycle the ViewController since it may be consuming a lot of memory.
@@ -577,7 +570,7 @@ BOOL viewRenderedAtLeastOnce = FALSE;
 
 // Prevent crashes on closing windows
 -(void)dealloc {
-    NSLog(@"dealloc");
+    //self.webView.delegate = nil;
 }
 
 - (void)createViews
@@ -592,18 +585,18 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     
     WKUserContentController* userContentController = [[WKUserContentController alloc] init];
     
-    self.configuration = [[WKWebViewConfiguration alloc] init];
-    self.configuration.userContentController = userContentController;
-    self.configuration.processPool = [[CDVWKProcessPoolFactory sharedFactory] sharedProcessPool];
+    WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
+    configuration.userContentController = userContentController;
+    configuration.processPool = [[CDVWKProcessPoolFactory sharedFactory] sharedProcessPool];
     
     // scriptMessageHandler is the object that conforms to the WKScriptMessageHandler protocol
     // see https://developer.apple.com/documentation/webkit/wkscriptmessagehandler
     if ([_webViewDelegate conformsToProtocol:@protocol(WKScriptMessageHandler)]) {
         NSLog(@"Add handler");
-        [self.configuration.userContentController addScriptMessageHandler:self name:@"cordova"];
+        [configuration.userContentController addScriptMessageHandler:self name:@"cordova"];
     }
     
-    self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:self.configuration];
+    self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
     CDVWKWebViewUIDelegate* webViewUIDelegate = [[CDVWKWebViewUIDelegate alloc] initWithTitle:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]];
     ((WKWebView*)self.webView).UIDelegate = webViewUIDelegate;
     
@@ -851,13 +844,6 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     [super viewDidLoad];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
-    [super viewDidDisappear:animated];
-    if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
-        [self.navigationDelegate browserExit];
-    }
-}
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
     return UIStatusBarStyleDefault;
@@ -872,6 +858,9 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     self.currentURL = nil;
     
+    if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
+        [self.navigationDelegate browserExit];
+    }
     
     __weak UIViewController* weakSelf = self;
     
