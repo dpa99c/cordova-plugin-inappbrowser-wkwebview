@@ -538,6 +538,8 @@
 @synthesize currentURL;
 
 BOOL viewRenderedAtLeastOnce = FALSE;
+BOOL isExiting = FALSE;
+
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions
 {
     self = [super init];
@@ -558,9 +560,8 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     return self;
 }
 
-// Prevent crashes on closing windows
 -(void)dealloc {
-    //self.webView.delegate = nil;
+    //NSLog(@"dealloc");
 }
 
 - (void)createViews
@@ -826,6 +827,15 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     [super viewDidLoad];
 }
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    if (isExiting && (self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
+        [self.navigationDelegate browserExit];
+        isExiting = FALSE;
+    }
+}
+
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
     return UIStatusBarStyleDefault;
@@ -840,14 +850,11 @@ BOOL viewRenderedAtLeastOnce = FALSE;
     [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     self.currentURL = nil;
     
-    if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
-        [self.navigationDelegate browserExit];
-    }
-    
     __weak UIViewController* weakSelf = self;
     
     // Run later to avoid the "took a long time" log message.
     dispatch_async(dispatch_get_main_queue(), ^{
+        isExiting = TRUE;
         if ([weakSelf respondsToSelector:@selector(presentingViewController)]) {
             [[weakSelf presentingViewController] dismissViewControllerAnimated:YES completion:nil];
         } else {
