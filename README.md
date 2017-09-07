@@ -6,6 +6,12 @@
 - The plugin supports iOS 9 and above
     - While WKWebView was introduced in iOS 8, it contained critical bugs making it effectively unusable for Cordova-based apps
     
+Some advantages of using WKWebView over UIWebView include:
+
+- Performance: graphic-intensive operations such as WebGL run much faster and more efficiently in WKWebView.
+- Stability: WKWebView has many improvements which leads to up to 70% less crashes.
+- Shared cookies: setting a cookie in an IAB window makes it available in the main Cordova Webview and vice-versa. This is especially useful for cookies that store authentication credentials since they will be preserved between IAB sessions.
+    
 ## Installation
 
     cordova plugin add cordova-plugin-inappbrowser-wkwebview
