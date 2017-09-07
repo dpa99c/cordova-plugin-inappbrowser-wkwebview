@@ -19,15 +19,14 @@
 -->
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-           id="cordova-plugin-inappbrowser"
-      version="1.7.2-dev">
+           id="cordova-plugin-inappbrowser-wkwebview"
+      version="1.0.0">
 
-    <name>InAppBrowser</name>
-    <description>Cordova InAppBrowser Plugin</description>
+    <name>InAppBrowser (WKWebView)</name>
+    <description>Cordova InAppBrowser Plugin with WKWebView for iOS</description>
     <license>Apache 2.0</license>
-    <keywords>cordova,in,app,browser,inappbrowser</keywords>
-    <repo>https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser.git</repo>
-    <issue>https://issues.apache.org/jira/browse/CB/component/12320641</issue>
+    <keywords>cordova,in,app,browser,inappbrowser,wkwebview</keywords>
+    <repo>https://git-wip-us.apache.org/repos/asf/cordova-plugin-inappbrowser-wkwebview.git</repo>
 
     <engines>
       <engine name="cordova" version=">=3.1.0" /><!-- Needs cordova/urlutil -->

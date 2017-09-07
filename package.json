@@ -1,10 +1,10 @@
 {
-  "name": "cordova-plugin-inappbrowser",
-  "version": "1.7.2-dev",
-  "description": "Cordova InAppBrowser Plugin",
+  "name": "cordova-plugin-inappbrowser-wkwebview",
+  "version": "1.0.0",
+  "description": "Cordova InAppBrowser Plugin with WKWebView for iOS",
   "types": "./types/index.d.ts",
   "cordova": {
-    "id": "cordova-plugin-inappbrowser",
+    "id": "cordova-plugin-inappbrowser-wkwebview",
     "platforms": [
       "android",
       "amazon-fireos",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apache/cordova-plugin-inappbrowser"
+    "url": "https://github.com/dpa99c/cordova-plugin-inappbrowser-wkwebview"
   },
   "bugs": {
     "url": "https://issues.apache.org/jira/browse/CB"
