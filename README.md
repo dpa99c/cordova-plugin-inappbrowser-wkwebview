@@ -21,6 +21,13 @@ Some advantages of using WKWebView over UIWebView include:
 - You need to add this (or a variant) manually to your project
 - This means the main Cordova app Webview will also use WKWebView on iOS 9+.
 
+## Example app
+
+[cordova-plugin-inappbrowser-wkwebview-test](https://github.com/dpa99c/cordova-plugin-inappbrowser-wkwebview-test) contains a Cordova project which builds an iOS test app to validate/illustrate usage of this plugin.
+
+## Related plugin
+
+[cordova-plugin-inappbrowser-popup-bridge](https://github.com/dpa99c/cordova-plugin-inappbrowser-popup-bridge) is an extension of this plugin which adds support for Braintree's PopupBridge libraries for [Android](https://github.com/braintree/popup-bridge-android) and [iOS](https://github.com/braintree/popup-bridge-ios) to support PayPal payments within the context of the InappBrowser element of a Cordova-based app.
 
 ## Plugin usage and API
 
