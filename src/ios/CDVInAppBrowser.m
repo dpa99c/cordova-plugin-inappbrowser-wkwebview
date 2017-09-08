@@ -608,7 +608,7 @@ BOOL isExiting = FALSE;
     self.webView.multipleTouchEnabled = YES;
     self.webView.opaque = YES;
     self.webView.userInteractionEnabled = YES;
-    self.automaticallyAdjustsScrollViewInsets = NO ;
+    self.automaticallyAdjustsScrollViewInsets = YES ;
     [self.webView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     
     
@@ -904,10 +904,6 @@ BOOL isExiting = FALSE;
 {
     if (IsAtLeastiOSVersion(@"7.0") && !viewRenderedAtLeastOnce) {
         viewRenderedAtLeastOnce = TRUE;
-        CGRect viewBounds = [self.webView bounds];
-        viewBounds.origin.y = STATUSBAR_HEIGHT;
-        viewBounds.size.height = viewBounds.size.height - STATUSBAR_HEIGHT;
-        self.webView.frame = viewBounds;
         [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle]];
     }
     [self rePositionViews];
