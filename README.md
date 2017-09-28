@@ -1,5 +1,9 @@
 # cordova-plugin-inappbrowser-wkwebview
 
+- v0.9.0 branch: note this branch contains a bug preventing content from rendering correctly if the IAB is hidden on init.
+However, the sizing of content in the IAB is correct, which is currently is not on the master at v1.0.1 (although the hide-on-init issue is fixed).
+When the content sizing issue on the master has been fixed, v1.0.2 will be published and this branch removed.
+
 - This is a fork of [cordova-plugin-inappbrowser](https://github.com/apache/cordova-plugin-inappbrowser) 
 - It uses the the newer [WKWebview](https://developer.apple.com/documentation/webkit/wkwebview) to power the InAppBrowser, in contrast to `cordova-plugin-inappbrowser` which still currently uses the legacy [UIWebView](https://developer.apple.com/documentation/uikit/uiwebview).
 - Only the iOS platform has been changed from the original `cordova-plugin-inappbrowser`.

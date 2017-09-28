@@ -20,7 +20,7 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
            id="cordova-plugin-inappbrowser-wkwebview"
-      version="1.0.0">
+      version="0.9.0">
 
     <name>InAppBrowser (WKWebView)</name>
     <description>Cordova InAppBrowser Plugin with WKWebView for iOS</description>
@@ -125,9 +125,9 @@
         </config-file>
 
         <header-file src="src/ios/CDVInAppBrowser.h" />
-	    <source-file src="src/ios/CDVInAppBrowser.m" />
+        <source-file src="src/ios/CDVInAppBrowser.m" />
 
-	    <framework src="CoreGraphics.framework" />
+        <framework src="CoreGraphics.framework" />
     </platform>
 
     <!-- osx -->
