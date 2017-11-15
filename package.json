@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-inappbrowser-wkwebview",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Cordova InAppBrowser Plugin with WKWebView for iOS",
   "types": "./types/index.d.ts",
   "cordova": {
