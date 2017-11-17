@@ -20,6 +20,9 @@
 -->
 # Release Notes
 
+### 1.0.4 (Nov 17, 2017)
+* Disable 3D touch link preview and gesture navigation.
+
 ### 1.0.3 (Nov 15, 2017)
 * Fix built-in JS dialogs (alert, confirm, prompt) on iOS
 
