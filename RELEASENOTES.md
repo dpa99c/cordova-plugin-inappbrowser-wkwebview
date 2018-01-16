@@ -20,6 +20,9 @@
 -->
 # Release Notes
 
+### 1.0.5 (Jan 16, 2018)
+* Fix iOS 11 bug where opening IAB as hidden causes native pickers in main Cordova WKWebView to misbehave.
+
 ### 1.0.4 (Nov 17, 2017)
 * Disable 3D touch link preview and gesture navigation.
 
