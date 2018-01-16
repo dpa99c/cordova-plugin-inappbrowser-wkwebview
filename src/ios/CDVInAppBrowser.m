@@ -244,9 +244,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if (weakSelf.inAppBrowserViewController != nil) {
             CGRect frame = [[UIScreen mainScreen] bounds];
-            if(initHidden){
-                frame.origin.x = -10000;
-            }
             
             UIWindow *tmpWindow = [[UIWindow alloc] initWithFrame:frame];
             UIViewController *tmpController = [[UIViewController alloc] init];
@@ -254,7 +251,9 @@
             [tmpWindow setRootViewController:tmpController];
             [tmpWindow setWindowLevel:UIWindowLevelNormal];
             
+            if(!initHidden){
             [tmpWindow makeKeyAndVisible];
+            }
             [tmpController presentViewController:nav animated:!noAnimate completion:nil];
         }
     });
