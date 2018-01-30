@@ -20,6 +20,9 @@
 -->
 # Release Notes
 
+### 1.0.7 (Jan 30, 2018)
+Bug fix for iOS crash when current IAB URL is nil
+
 ### 1.0.6 (Jan 17, 2018)
 Make hiding mechanism conditional depending on iOS version.
 Since the frame.origin method works fine on iOS 9&10 but causes native
