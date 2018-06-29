@@ -312,48 +312,52 @@
 
 - (void)injectDeferredObject:(NSString*)source withWrapper:(NSString*)jsWrapper
 {
+    __block NSString* _source = source;
+    __block NSString* _jsWrapper = jsWrapper;
     // Ensure a message handler bridge is created to communicate with the CDVInAppBrowserViewController
-    [self evaluateJavaScript: [NSString stringWithFormat:@"(function(w){if(!w._cdvMessageHandler) {w._cdvMessageHandler = function(id,d){w.webkit.messageHandlers.%@.postMessage({d:d, id:id});}}})(window)", IAB_BRIDGE_NAME]];
-    
-    if (jsWrapper != nil) {
-        NSData* jsonData = [NSJSONSerialization dataWithJSONObject:@[source] options:0 error:nil];
+    [self evaluateJavaScript: [NSString stringWithFormat:@"(function(w){if(!w._cdvMessageHandler) {w._cdvMessageHandler = function(id,d){w.webkit.messageHandlers.%@.postMessage({d:d, id:id});}}})(window)", IAB_BRIDGE_NAME]
+        completion:^(NSString* result){
+            if (_jsWrapper != nil) {
+                NSData* jsonData = [NSJSONSerialization dataWithJSONObject:@[_source] options:0 error:nil];
         NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         if (sourceArrayString) {
             NSString* sourceString = [sourceArrayString substringWithRange:NSMakeRange(1, [sourceArrayString length] - 2)];
-            NSString* jsToInject = [NSString stringWithFormat:jsWrapper, sourceString];
-            [self evaluateJavaScript:jsToInject];
+                    NSString* jsToInject = [NSString stringWithFormat:_jsWrapper, sourceString];
+                    [self evaluateJavaScript:jsToInject completion:^(NSString* result){}];
         }
     } else {
-        [self evaluateJavaScript:source];
+                [self evaluateJavaScript:_source completion:^(NSString* result){}];
     }
+        }];
 }
 
-
-//Synchronus helper for javascript evaluation
-
-- (NSString *)evaluateJavaScript:(NSString *)script {
-    __block NSString *resultString = nil;
-    __block BOOL finished = NO;
+//asynchronus helper for javascript evaluation
+- (void)evaluateJavaScript:(NSString *)script 
+                             completion:(JsSuccessBlock)completion
+{
     __block NSString* _script = script;
-    
-    [self.inAppBrowserViewController.webView evaluateJavaScript:script completionHandler:^(id result, NSError *error) {
-        if (error == nil) {
-            if (result != nil) {
-                resultString = result;
-                NSLog(@"%@", resultString);
-            }
-        } else {
-            NSLog(@"evaluateJavaScript error : %@ : %@", error.localizedDescription, _script);
+    __block JsSuccessBlock _completion = completion;
+
+    // The WKWebView requires JS evaluation to occur on the main
+    // thread starting with iOS11, so ensure that we dispatch to it before executing.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+            [self.inAppBrowserViewController.webView evaluateJavaScript:script completionHandler:^(id result, NSError *error) {
+                NSString* resultString = nil;
+                if (error == nil) {
+                    if (result != nil) {
+                        resultString = result;
+                        NSLog(@"%@", resultString);
+                    }
+                } else {
+                    NSLog(@"evaluateJavaScript error : %@ : %@", error.localizedDescription, _script);
+                }
+                _completion(resultString);
+            }];
+        }@catch (NSException* exception) {
+            NSLog(@"evaluateJavaScript exception : %@ : %@", exception.reason, _script);
         }
-        finished = YES;
-    }];
-    
-    while (!finished)
-    {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-    }
-    
-    return resultString;
+    });
 }
 
 - (void)injectScriptCode:(CDVInvokedUrlCommand*)command
@@ -451,23 +455,45 @@
 - (void)userContentController:(nonnull WKUserContentController *)userContentController didReceiveScriptMessage:(nonnull WKScriptMessage *)message {
     
     CDVPluginResult* pluginResult = nil;
+    BOOL keepCallback = NO;
+    NSString* scriptCallbackId = nil;
     
-    NSDictionary* messageContent = (NSDictionary*) message.body;
-    NSString* scriptCallbackId = messageContent[@"id"];
-    
-    if([messageContent objectForKey:@"d"]){
-        NSString* scriptResult = messageContent[@"d"];
+    NSDictionary* messageContent;
+    if([message.body isKindOfClass:[NSDictionary class]]){
+        messageContent = (NSDictionary*) message.body;
+    }else{
         NSError* __autoreleasing error = nil;
-        NSData* decodedResult = [NSJSONSerialization JSONObjectWithData:[scriptResult dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
-        if ((error == nil) && [decodedResult isKindOfClass:[NSArray class]]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:(NSArray*)decodedResult];
+        NSData* decodedResult = [NSJSONSerialization JSONObjectWithData:[message.body dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+        if (error == nil) {
+            messageContent = (NSDictionary*) decodedResult;
         } else {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_JSON_EXCEPTION];
         }
+    }
+    if(pluginResult != nil){
+        scriptCallbackId = self.callbackId;
+    } else if([messageContent objectForKey:@"id"]){
+        scriptCallbackId = messageContent[@"id"];
+        if([messageContent objectForKey:@"d"]){
+            NSString* scriptResult = messageContent[@"d"];
+            NSError* __autoreleasing error = nil;
+            NSData* decodedResult = [NSJSONSerialization JSONObjectWithData:[scriptResult dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+            if ((error == nil) && [decodedResult isKindOfClass:[NSArray class]]) {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:(NSArray*)decodedResult];
+            } else {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_JSON_EXCEPTION];
+            }
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@[]];
+        }
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@[]];
+        scriptCallbackId = self.callbackId;
+        keepCallback = YES;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                     messageAsDictionary:@{@"type":@"message", @"data":messageContent}];
     }
     
+    [pluginResult setKeepCallback:[NSNumber numberWithBool:keepCallback]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:scriptCallbackId];
 }
 
