@@ -193,16 +193,6 @@
             }
         }
     }
-
-    //WKWebView options
-    self.inAppBrowserViewController.webView.ignoresViewportScaleLimits = browserOptions.enableviewportscale;
-    self.inAppBrowserViewController.webView.allowsInlineMediaPlayback = browserOptions.allowinlinemediaplayback;
-    if(browserOptions.mediaplaybackrequiresuseraction === YES){
-        self.inAppBrowserViewController.webView.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeAll;   
-    }else{
-        self.inAppBrowserViewController.webView.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
-    }
-    
     
     [self.inAppBrowserViewController navigateTo:url];
     [self show:nil withNoAnimate:browserOptions.hidden];
@@ -616,6 +606,15 @@ BOOL isExiting = FALSE;
     configuration.userContentController = userContentController;
     configuration.processPool = [[CDVWKProcessPoolFactory sharedFactory] sharedProcessPool];
     [configuration.userContentController addScriptMessageHandler:self name:IAB_BRIDGE_NAME];
+    
+    //WKWebView options
+    configuration.ignoresViewportScaleLimits = _browserOptions.enableviewportscale;
+    configuration.allowsInlineMediaPlayback = _browserOptions.allowinlinemediaplayback;
+    if(_browserOptions.mediaplaybackrequiresuseraction == YES){
+        configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeAll;
+    }else{
+        configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+    }
     
     
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];

@@ -45,9 +45,15 @@ typedef void(^JsSuccessBlock)(NSString* result);
 @property (nonatomic, assign) BOOL location;
 @property (nonatomic, assign) BOOL toolbar;
 @property (nonatomic, copy) NSString* closebuttoncaption;
+@property (nonatomic, copy) NSString* closebuttoncolor;
 @property (nonatomic, copy) NSString* toolbarposition;
+@property (nonatomic, copy) NSString* toolbarcolor;
+@property (nonatomic, assign) BOOL toolbartranslucent;
+@property (nonatomic, assign) BOOL hidenavigationbuttons;
+@property (nonatomic, copy) NSString* navigationbuttoncolor;
 @property (nonatomic, assign) BOOL clearcache;
 @property (nonatomic, assign) BOOL clearsessioncache;
+@property (nonatomic, assign) BOOL hidespinner;
 
 @property (nonatomic, copy) NSString* presentationstyle;
 @property (nonatomic, copy) NSString* transitionstyle;
