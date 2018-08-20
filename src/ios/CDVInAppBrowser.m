@@ -193,6 +193,15 @@
             }
         }
     }
+
+    //WKWebView options
+    self.inAppBrowserViewController.webView.ignoresViewportScaleLimits = browserOptions.enableviewportscale;
+    self.inAppBrowserViewController.webView.allowsInlineMediaPlayback = browserOptions.allowinlinemediaplayback;
+    if(browserOptions.mediaplaybackrequiresuseraction === YES){
+        self.inAppBrowserViewController.webView.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeAll;   
+    }else{
+        self.inAppBrowserViewController.webView.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+    }
     
     
     [self.inAppBrowserViewController navigateTo:url];
