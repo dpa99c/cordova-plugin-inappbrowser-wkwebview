@@ -81,6 +81,8 @@
 
         <header-file src="src/ios/CDVInAppBrowser.h" />
 	    <source-file src="src/ios/CDVInAppBrowser.m" />
+        <header-file src="src/ios/CDVInAppBrowserUIDelegate.h" />
+        <source-file src="src/ios/CDVInAppBrowserUIDelegate.m" />
 
 	    <framework src="CoreGraphics.framework" />
     </platform>
