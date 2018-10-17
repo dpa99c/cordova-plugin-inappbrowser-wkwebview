@@ -22,7 +22,7 @@ Some advantages of using WKWebView over UIWebView include:
     
 ## Installation
 
-    cordova plugin add cordova-plugin-inappbrowser-wkwebview
+    cordova plugin add https://github.com/dpa99c/cordova-plugin-inappbrowser-wkwebview
     cordova plugin add cordova-plugin-wkwebview-engine
 
 - This plugin depends on [cordova-plugin-wkwebview-engine](https://github.com/apache/cordova-plugin-wkwebview-engine) which adds WKWebView support to Cordova.
