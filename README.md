@@ -1,5 +1,13 @@
 # cordova-plugin-inappbrowser-wkwebview
 
+# THIS PLUGIN IS DEPRECATED
+
+The [Pull Request](https://github.com/apache/cordova-plugin-inappbrowser/pull/271) to add WKWebView support to [cordova-plugin-inappbrowser](https://github.com/apache/cordova-plugin-inappbrowser) has now been merged, so this plugin is no longer required in order to use WKWebView in the Inapp Browser (you can now use `cordova-plugin-inappbrowser`).
+
+Therefore this plugin will no longer be maintained. Any issues with WKWebView implementation should now be reported against `cordova-plugin-inappbrowser`.
+
+<hr/>
+
 - This is a fork of [cordova-plugin-inappbrowser](https://github.com/apache/cordova-plugin-inappbrowser) 
 - It uses the the newer [WKWebview](https://developer.apple.com/documentation/webkit/wkwebview) to power the InAppBrowser, in contrast to `cordova-plugin-inappbrowser` which still currently uses the legacy [UIWebView](https://developer.apple.com/documentation/uikit/uiwebview).
 - Only the iOS platform has been changed from the original `cordova-plugin-inappbrowser`.
